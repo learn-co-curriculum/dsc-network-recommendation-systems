@@ -9,7 +9,7 @@ In this lesson, you'll investigate a very different take on networks and investi
 ## Objectives
 
 You will be able to:
-* Outline preliminary methods for developing recommendations sytems
+* Outline preliminary methods for developing recommendations systems
 
 
 ## Motivating Ideas
@@ -18,7 +18,7 @@ When recommending items to a user whether they be books, music, movies, restaura
 
 ## Collaborative Filtering
 
-One popular implementation of this intuition is collaborative filtering. This starts by constructing a matrix of user or item similarities. For example, you might calculate the distance between users based on their mutual ratings of items. From there, you then select the top n similar users or items. Finally, in the case of users, you then project an anticipated rating for other unreviewed items of the user based on the preferences of these similar users. Once sorted, these projections can be then used to serve recommendations to othe user.
+One popular implementation of this intuition is collaborative filtering. This starts by constructing a matrix of user or item similarities. For example, you might calculate the distance between users based on their mutual ratings of items. From there, you then select the top n similar users or items. Finally, in the case of users, you then project an anticipated rating for other unreviewed items of the user based on the preferences of these similar users. Once sorted, these projections can be then used to serve recommendations to other users.
 
 ## Importing a DataSet
 
