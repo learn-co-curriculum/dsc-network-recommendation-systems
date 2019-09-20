@@ -707,6 +707,7 @@ To create a user matrix, you must calculate the distance between users. Choosing
 
 ```python
 import numpy as np
+import datetime
 ```
 
 
@@ -746,7 +747,7 @@ print(elapsed)
 user_similarities.head()
 ```
 
-    0:04:54.550740
+    0:04:27.928178
 
 
 
