@@ -728,6 +728,7 @@ distance(u1,u2)
 
 
 ```python
+# ⏰ Expect this cell to take several minutes to run
 start = datetime.datetime.now()
 user_matrix = []
 for i, row in enumerate(user_ratings.index):
