@@ -8,30 +8,28 @@ In this lesson, you'll investigate a very different take on networks and investi
 
 ## Objectives
 
-You will be able to:
-* Outline preliminary methods for developing recommendations systems
+You will be able to: 
+- Demonstrate how to create a simple collaborative filtering recommender system 
+- Use graph-based similarity metrics to create a collaborative filtering recommender system 
 
 
 ## Motivating Ideas
 
-When recommending items to a user whether they be books, music, movies, restaurants or other consumer products one is typically trying to find the preferences of other users with similar tastes who can provide useful suggestions for the user in question. With this, examining the relationships amongst users and their previous preferences can help identify which users are most similar to each other. Alternatively, one can examine the relationships between the items themselves. These two perspectives underlying the two predominant means to recommendation systems: item based and people based. 
+When recommending items to a user whether they be books, music, movies, restaurants or other consumer products, one is typically trying to find the preferences of other users with similar tastes who can provide useful suggestions for the user in question. With this, examining the relationships amongst users and their previous preferences can help identify which users are most similar to each other. Alternatively, one can examine the relationships between the items themselves. These two perspectives underlying the two predominant means to recommendation systems: item-based and people-based. 
 
 ## Collaborative Filtering
 
-One popular implementation of this intuition is collaborative filtering. This starts by constructing a matrix of user or item similarities. For example, you might calculate the distance between users based on their mutual ratings of items. From there, you then select the top n similar users or items. Finally, in the case of users, you then project an anticipated rating for other unreviewed items of the user based on the preferences of these similar users. Once sorted, these projections can be then used to serve recommendations to other users.
+One popular implementation of this intuition is collaborative filtering. This starts by constructing a matrix of user or item similarities. For example, you might calculate the distance between users based on their mutual ratings of items. From there, you then select the top $n$ similar users or items. Finally, in the case of users, you then project an anticipated rating for other unreviewed items of the user based on the preferences of these similar users. Once sorted, these projections can be then used to serve recommendations to other users.
 
-## Importing a DataSet
+## Importing a Dataset
 
 To start, you'll need to import a dataset as usual. For this lesson, you'll take a look at the Movie-Lens dataset which contains movie reviews for a large number of individuals. While the dataset is exclusively older movies, it should still make for an interesting investigation.
 
 
 ```python
 import pandas as pd
-```
-
-
-```python
-df = pd.read_csv('ml-100k/u.data', delimiter="\t", names=["user_id" , "item_id" , "rating" , "timestamp"])
+df = pd.read_csv('ml-100k/u.data', delimiter='\t', 
+                 names=['user_id' , 'item_id' , 'rating' , 'timestamp'])
 df.head()
 ```
 
@@ -108,13 +106,12 @@ As you can see, this dataset could easily be represented as a bimodal weighted n
 
 
 ```python
-col_names = ["movie_id" ,"movie_title" ," release_date" ," video_release_date" ,
-             "IMDb_URL" ,"unknown"," Action","Adventure", "Animation",
-             "Childrens", "Comedy","Crime" ,"Documentary", "Drama","Fantasy",
-             "Film-Noir", "Horror", "Musical" ,"Mystery" ,"Romance" ,"Sci-Fi",
-             "Thriller","War" ,"Western"
-            ]
-movies = pd.read_csv('ml-100k/u.item', delimiter="|", encoding='latin1', names=col_names)
+col_names = ['movie_id' , 'movie_title' , 'release_date' , 'video_release_date' ,
+             'IMDb_URL' , 'unknown', 'Action', 'Adventure', 'Animation',
+             'Childrens', 'Comedy', 'Crime' , 'Documentary', 'Drama', 'Fantasy',
+             'Film-Noir', 'Horror', 'Musical', 'Mystery' , 'Romance' , 'Sci-Fi',
+             'Thriller', 'War' ,'Western']
+movies = pd.read_csv('ml-100k/u.item', delimiter='|', encoding='latin1', names=col_names)
 movies.head()
 ```
 
@@ -290,7 +287,7 @@ movies.head()
 
 
 
-## Transforming the Data Part I
+## Transforming the Data
 
 
 ```python
@@ -494,13 +491,13 @@ user_ratings.head()
 
 
 
-## Filling Null Values
+## Filling Missing Values
 
 
 ```python
 for col in user_ratings:
     mean = user_ratings[col].mean()
-    user_ratings[col]=user_ratings[col].fillna(value=mean)
+    user_ratings[col] = user_ratings[col].fillna(value=mean)
 user_ratings.head()
 ```
 
@@ -733,7 +730,8 @@ start = datetime.datetime.now()
 user_matrix = []
 for i, row in enumerate(user_ratings.index):
     u1 = user_ratings[row]
-    user_distances = [entry[i] for entry in user_matrix] #Matrix is symetric, so fill in values for previously examined users
+    # Matrix is symetric, so fill in values for previously examined users
+    user_distances = [entry[i] for entry in user_matrix] 
     for j, row2 in enumerate(user_ratings.index[i:]):
         u2 = user_ratings[row2]
         d = distance(u1,u2)
@@ -748,7 +746,7 @@ print(elapsed)
 user_similarities.head()
 ```
 
-    0:04:27.928178
+    0:02:12.766052
 
 
 
@@ -925,15 +923,17 @@ user_similarities.head()
 
 ## Calculating Recommendations
 
-Now on to the recommendations! To do this, you'll select the top n users who are similar to the user in question. From there, you'll then predict the current user's rating of a movie based on the average of the closest users ratings. Finally, you'll then sort these ratings from highest to lowest and remove movies that the current user has already rated and seen. 
+Now on to the recommendations! To do this, you'll select the top $n$ users who are similar to the user in question. From there, you'll then predict the current user's rating of a movie based on the average of the closest users ratings. Finally, you'll then sort these ratings from highest to lowest and remove movies that the current user has already rated and seen. 
 
 
 ```python
 def recommend_movies(user, user_similarities, user_ratings, df, n_users=20, n_items=10):
     """n is the number of similar users who you wish to use to generate recommendations."""
-    top_n_similar_users = user_similarities[user-1].drop(user-1).sort_values().index[:n_users] #User_Similarities Offset By 1 and Must Remove Current User
-    top_n_similar_users = [i+1 for i in top_n_similar_users] #Again, fixing the offset of user_ids
-    already_watched = set(df[df.user_id==0].item_id.unique())
+    # User_Similarities Offset By 1 and Must Remove Current User
+    top_n_similar_users = user_similarities[user-1].drop(user-1).sort_values().index[:n_users] 
+    # Again, fixing the offset of user_ids
+    top_n_similar_users = [i+1 for i in top_n_similar_users] 
+    already_watched = set(df[df.user_id == 0].item_id.unique())
     unwatched = set(df.item_id.unique()) - already_watched
     projected_user_reviews = user_ratings[user_ratings.index.isin(top_n_similar_users)].mean()[list(unwatched)].sort_values(ascending=False)
     return projected_user_reviews[:n_items]
